@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,7 @@ public class AdapterRV extends RecyclerView.Adapter<AdapterRV.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ModelClassRV modelClassRV = modelClassRVList.get(position);
+        holder.RLCard.setBackgroundResource(modelClassRV.getIsDay() == 1 ? R.drawable.custom_card_day : R.drawable.custom_card_back);
         holder.temperatureTV.setText(modelClassRV.getTemperature() + "°C");
         SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         SimpleDateFormat output = new SimpleDateFormat("hh:mm aa");
@@ -55,12 +57,14 @@ public class AdapterRV extends RecyclerView.Adapter<AdapterRV.ViewHolder>{
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView temperatureTV, timeTV, windSpeedTV;
         private ImageView AiconIV;
+        private RelativeLayout RLCard;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             temperatureTV = itemView.findViewById(R.id.TVTemp);
             timeTV = itemView.findViewById(R.id.TVTime);
             windSpeedTV = itemView.findViewById(R.id.TVSpeed);
             AiconIV = itemView.findViewById(R.id.IVIcon);
+            RLCard = itemView.findViewById(R.id.RLCard);
 
         }
     }

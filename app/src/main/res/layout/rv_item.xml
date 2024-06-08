@@ -12,6 +12,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/RLCard"
         android:background="@drawable/custom_card_back">
         
         <TextView

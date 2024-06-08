@@ -1,6 +1,7 @@
 package com.example.weatherforcast;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -54,6 +56,13 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        View decorView = getWindow().getDecorView();
+        WindowInsetsControllerCompat windowInsetsController = ViewCompat.getWindowInsetsController(decorView);
+        if (windowInsetsController != null) {
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+            windowInsetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
         initViews();
         adapterRV = new AdapterRV(this, modelClassRVArrayList);
         weatherRV.setAdapter(adapterRV);
@@ -73,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getWeatherInfo(String cityName){
-        String url = "http://api.weatherapi.com/v1/forecast.json?key=2bb58fe80167457eb2b185037240606&q="+ cityName +"&days=1&aqi=no&alerts=no";
+        String url = "https://api.weatherapi.com/v1/forecast.json?key=2bb58fe80167457eb2b185037240606&q="+ cityName +"&days=1&aqi=no&alerts=no";
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -100,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                         String windSpeed = hourObj.getString("wind_kph");
                         String iconURL = hourObj.getJSONObject("condition").getString("icon");
                         String temp = hourObj.getString("temp_c");
-                        ModelClassRV modelClassRV = new ModelClassRV(temp, time, iconURL, windSpeed);
+                        ModelClassRV modelClassRV = new ModelClassRV(temp, time, iconURL, windSpeed, isDay);
                         modelClassRVArrayList.add(modelClassRV);
                     }
                     runOnUiThread(new Runnable() {
@@ -129,7 +138,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Toast.makeText(MainActivity.this, "Enter valid city name...", Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e("Error", "onFailure: " + e.getMessage());
+                        Toast.makeText(MainActivity.this, "Enter valid city name...", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
         });
 

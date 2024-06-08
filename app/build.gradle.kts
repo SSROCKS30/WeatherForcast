@@ -38,7 +38,6 @@ dependencies {
     implementation(libs.picasso)
     implementation(libs.constraintlayout)
     implementation(libs.okhttp)
-    implementation(libs.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
