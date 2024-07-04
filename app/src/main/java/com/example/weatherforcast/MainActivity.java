@@ -1,9 +1,13 @@
 package com.example.weatherforcast;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ModelClassRV> modelClassRVArrayList;
     private AdapterRV adapterRV;
     private final OkHttpClient client = new OkHttpClient();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,26 +72,54 @@ public class MainActivity extends AppCompatActivity {
         adapterRV = new AdapterRV(this, modelClassRVArrayList);
         weatherRV.setAdapter(adapterRV);
         getWeatherInfo("Bengaluru");
-        SearchIv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String city = searchEdt.getText().toString();
-                if(city.isEmpty()){
-                    Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
-                }else{
-                    getWeatherInfo(city);
+
+        SearchIv.setOnClickListener(v -> performSearch());
+
+        searchEdt.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_ACTION_DONE ||
+                    (event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                if (event == null || !event.isShiftPressed()) {
+                    performSearch();
+                    hideKeyboard(); // Hide keyboard after search
+                    return true; // Consume the event
                 }
             }
+            return false; // Pass the event to other listeners
         });
-
     }
 
-    public void getWeatherInfo(String cityName){
-        String url = "https://api.weatherapi.com/v1/forecast.json?key=2bb58fe80167457eb2b185037240606&q="+ cityName +"&days=1&aqi=no&alerts=no";
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(searchEdt.getWindowToken(), 0);
+    }
+
+    private void hideProgressBar() {
+        loadingPB.setVisibility(View.GONE);
+        homeRL.setVisibility(View.VISIBLE);
+    }
+    private void showProgressBar() {
+        loadingPB.setVisibility(View.VISIBLE);
+        homeRL.setVisibility(View.GONE);
+    }
+
+    private void performSearch() {
+        showProgressBar();
+
+        String city = searchEdt.getText().toString();
+        if (city.isEmpty()) {
+            Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
+        } else {
+            getWeatherInfo(city);
+        }
+    }
+
+    public void getWeatherInfo(String cityName) {
+        String url = "https://api.weatherapi.com/v1/forecast.json?key=" + BuildConfig.API_KEY + "&q=" + cityName + "&days=1&aqi=no&alerts=no";
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        client.newCall(request).enqueue(new Callback(){
+        client.newCall(request).enqueue(new Callback() {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
@@ -103,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject forecastArray = forecastObj.getJSONArray("forecastday").getJSONObject(0);
                     JSONArray hourArray = forecastArray.getJSONArray("hour");
 
-                    for(int i = 0; i<hourArray.length(); i++){
+                    for (int i = 0; i < hourArray.length(); i++) {
                         JSONObject hourObj = hourArray.getJSONObject(i);
                         String time = hourObj.getString("time");
                         String windSpeed = hourObj.getString("wind_kph");
@@ -112,24 +145,19 @@ public class MainActivity extends AppCompatActivity {
                         ModelClassRV modelClassRV = new ModelClassRV(temp, time, iconURL, windSpeed, isDay);
                         modelClassRVArrayList.add(modelClassRV);
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadingPB.setVisibility(View.GONE);
-                            homeRL.setVisibility(View.VISIBLE);
-                            temperatureTv.setText(temperature);
-                            cityTv.setText(city);
-                            Picasso.get().load("https:".concat(icon)).into(iconIv);
-                            conditionTv.setText(condition);
-                            if(isDay == 1) {
-                                backIv.setImageResource(R.drawable.day);
-                            }else{
-                                backIv.setImageResource(R.drawable.night);
-                            }
-                            adapterRV.notifyDataSetChanged();
+                    runOnUiThread(() -> {
+                        hideProgressBar();
+                        temperatureTv.setText(temperature);
+                        cityTv.setText(city);
+                        Picasso.get().load("https:".concat(icon)).into(iconIv);
+                        conditionTv.setText(condition);
+                        if (isDay == 1) {
+                            backIv.setImageResource(R.drawable.day);
+                        } else {
+                            backIv.setImageResource(R.drawable.night);
                         }
+                        adapterRV.notifyDataSetChanged();
                     });
-
 
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -138,18 +166,15 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.e("Error", "onFailure: " + e.getMessage());
-                        Toast.makeText(MainActivity.this, "Enter valid city name...", Toast.LENGTH_SHORT).show();
-                    }
+                runOnUiThread(() -> {
+                    Log.e("Error", "onFailure: " + e.getMessage());
+                    Toast.makeText(MainActivity.this, "Enter valid city name...", Toast.LENGTH_SHORT).show();
+                    hideProgressBar();
                 });
-
             }
         });
-
     }
+
     public void initViews() {
         weatherRV = findViewById(R.id.RVWeather);
         homeRL = findViewById(R.id.RLHome);

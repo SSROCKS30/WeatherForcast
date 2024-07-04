@@ -58,8 +58,7 @@
                     android:singleLine="true"
                     android:textColor="@color/white"
                     android:textSize="14sp"
-                    android:background="@android:color/transparent"
-                    />
+                    android:background="@android:color/transparent" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -72,9 +71,7 @@
                 android:layout_gravity="center"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_search"
-                app:tint="@color/white"/>
-
-
+                app:tint="@color/white" />
         </LinearLayout>
 
         <TextView
@@ -89,10 +86,8 @@
             android:textStyle="bold"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="30sp" />
+            android:textSize="40sp" />
 
-
-        
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -103,28 +98,28 @@
             android:padding="5dp"
             android:text="23"
             android:textColor="@color/white"
-            android:textSize="70sp"/>
-        
+            android:textSize="70sp" />
+
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:id="@+id/IVIcon"
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/TVTemperature"
             android:layout_margin="10dp"
-            android:src="@mipmap/ic_launcher"/>
-        
+            android:src="@mipmap/ic_launcher" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/TVCondition"
             android:layout_margin="10dp"
             android:gravity="center"
+            android:textSize="20dp"
             android:textAlignment="center"
             android:text="Condition"
             android:textColor="@color/white"
-            android:layout_below="@+id/IVIcon"
-            />
+            android:layout_below="@+id/IVIcon" />
 
         <TextView
             android:layout_width="match_parent"
@@ -132,13 +127,11 @@
             android:layout_margin="8dp"
             android:layout_marginBottom="10dp"
             android:id="@+id/title"
-            android:text="Today's Weather Forcast"
+            android:text="Today's Weather Forecast"
             android:textColor="@color/white"
             android:gravity="center_horizontal"
-
             android:layout_above="@+id/RVWeather"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/RVWeather"
@@ -148,9 +141,5 @@
             android:layout_marginBottom="60dp"
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-
     </RelativeLayout>
-
-
 </RelativeLayout>
